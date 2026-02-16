@@ -1,0 +1,264 @@
+{% extends 'base.html' %}
+
+{% block title %}Task List - Task Manager{% endblock %}
+
+{% block extra_css %}
+<style>
+    .task-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .task-header h2 {
+        color: #333;
+        font-size: 2rem;
+    }
+
+    .filter-section {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .filter-section select {
+        padding: 0.5rem 1rem;
+        border: 2px solid #ddd;
+        border-radius: 5px;
+        background: white;
+        color: #333;
+    }
+
+    .tasks-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-top: 2rem;
+    }
+
+    .task-card {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        border-radius: 10px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+        border-left: 5px solid #667eea;
+    }
+
+    .task-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+    }
+
+    .task-card.high-priority {
+        border-left-color: #dc3545;
+        background: linear-gradient(135deg, #ffe5e5 0%, #ffcccc 100%);
+    }
+
+    .task-card.medium-priority {
+        border-left-color: #ffc107;
+        background: linear-gradient(135deg, #fff8e5 0%, #ffe5cc 100%);
+    }
+
+    .task-card.low-priority {
+        border-left-color: #28a745;
+        background: linear-gradient(135deg, #e5ffe5 0%, #ccffcc 100%);
+    }
+
+    .task-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 0.5rem;
+        word-wrap: break-word;
+    }
+
+    .task-meta {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 0.4rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .badge-todo {
+        background: #e3f2fd;
+        color: #1976d2;
+    }
+
+    .badge-in-progress {
+        background: #fff3e0;
+        color: #f57c00;
+    }
+
+    .badge-completed {
+        background: #e8f5e9;
+        color: #388e3c;
+    }
+
+    .badge-high {
+        background: #ffebee;
+        color: #c62828;
+    }
+
+    .badge-medium {
+        background: #fef5e7;
+        color: #f39c12;
+    }
+
+    .badge-low {
+        background: #f1f8e9;
+        color: #558b2f;
+    }
+
+    .task-description {
+        color: #555;
+        font-size: 0.95rem;
+        margin-bottom: 1rem;
+        line-height: 1.5;
+        max-height: 80px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .task-date {
+        color: #888;
+        font-size: 0.85rem;
+        margin-bottom: 1rem;
+    }
+
+    .task-actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+
+    .task-actions a {
+        flex: 1;
+        padding: 0.5rem;
+        text-align: center;
+        text-decoration: none;
+        border-radius: 5px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .task-actions .btn-view {
+        background: #667eea;
+        color: white;
+    }
+
+    .task-actions .btn-view:hover {
+        background: #5568d3;
+    }
+
+    .task-actions .btn-edit {
+        background: #28a745;
+        color: white;
+    }
+
+    .task-actions .btn-edit:hover {
+        background: #218838;
+    }
+
+    .task-actions .btn-delete {
+        background: #dc3545;
+        color: white;
+    }
+
+    .task-actions .btn-delete:hover {
+        background: #c82333;
+    }
+
+    .no-tasks {
+        text-align: center;
+        padding: 3rem;
+        color: #999;
+    }
+
+    .no-tasks h3 {
+        color: #666;
+        margin-bottom: 1rem;
+    }
+
+    .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 3rem;
+    }
+
+    .empty-state-emoji {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="task-header">
+    <h2>My Tasks</h2>
+    <a href="{% url 'create_task' %}" class="btn btn-primary">+ Create New Task</a>
+</div>
+
+<div class="filter-section">
+    <label for="status-filter">Filter by Status:</label>
+    <select id="status-filter" onchange="location.href='?status=' + this.value">
+        <option value="">All Tasks</option>
+        {% for status_key, status_name in status_choices %}
+            <option value="{{ status_key }}" {% if request.GET.status == status_key %}selected{% endif %}>
+                {{ status_name }}
+            </option>
+        {% endfor %}
+    </select>
+</div>
+
+{% if tasks %}
+    <div class="tasks-grid">
+        {% for task in tasks %}
+            <div class="task-card {% if task.priority == 'high' %}high-priority{% elif task.priority == 'medium' %}medium-priority{% else %}low-priority{% endif %}">
+                <div class="task-title">{{ task.title }}</div>
+                
+                <div class="task-meta">
+                    <span class="badge badge-{{ task.status }}">{{ task.get_status_display }}</span>
+                    <span class="badge badge-{{ task.priority }}">{{ task.get_priority_display }} Priority</span>
+                </div>
+
+                {% if task.description %}
+                    <div class="task-description">{{ task.description }}</div>
+                {% endif %}
+
+                {% if task.due_date %}
+                    <div class="task-date">📅 Due: {{ task.due_date|date:"M d, Y" }}</div>
+                {% endif %}
+
+                <div class="task-actions">
+                    <a href="{% url 'task_detail' task.id %}" class="btn-view">View</a>
+                    <a href="{% url 'update_task' task.id %}" class="btn-edit">Edit</a>
+                    <a href="{% url 'delete_task' task.id %}" class="btn-delete">Delete</a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="empty-state">
+        <div class="empty-state-emoji">📭</div>
+        <h3>No tasks yet!</h3>
+        <p>Create your first task to get started.</p>
+        <a href="{% url 'create_task' %}" class="btn btn-primary" style="margin-top: 1rem;">Create Task</a>
+    </div>
+{% endif %}
+{% endblock %}

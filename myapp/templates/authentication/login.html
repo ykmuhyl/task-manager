@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+
+{% block title %}Login - Task Manager{% endblock %}
+
+{% block extra_css %}
+<style>
+    .auth-container {
+        max-width: 450px;
+        margin: 2rem auto;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 3rem 2rem;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+    }
+
+    .auth-container h2 {
+        color: white;
+        text-align: center;
+        margin-bottom: 2rem;
+        font-size: 1.8rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: white;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.75rem;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 5px;
+        font-size: 1rem;
+        background: rgba(255, 255, 255, 0.9);
+        color: #333;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: white;
+        background: white;
+        box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
+    }
+
+    .form-control::placeholder {
+        color: #999;
+    }
+
+    .submit-btn {
+        width: 100%;
+        padding: 0.75rem;
+        background: white;
+        color: #667eea;
+        border: none;
+        border-radius: 5px;
+        font-weight: 700;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .auth-links {
+        text-align: center;
+        margin-top: 2rem;
+    }
+
+    .auth-links a {
+        color: white;
+        text-decoration: none;
+        font-weight: 600;
+        display: block;
+        margin: 0.5rem 0;
+        transition: all 0.3s ease;
+    }
+
+    .auth-links a:hover {
+        text-decoration: underline;
+        opacity: 0.8;
+    }
+
+    .errorlist {
+        background: #ffcccc;
+        color: #c62828;
+        padding: 1rem;
+        border-radius: 5px;
+        list-style: none;
+        margin-bottom: 1rem;
+    }
+
+    .errorlist li {
+        margin: 0.5rem 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <h2>🔐 Login</h2>
+
+    {% if form.non_field_errors %}
+        <div class="errorlist">
+            {% for error in form.non_field_errors %}
+                <li>{{ error }}</li>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="{{ form.username.id_for_label }}">{{ form.username.label }}</label>
+            {{ form.username }}
+            {% if form.username.errors %}
+                <ul class="errorlist">
+                    {% for error in form.username.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.password.id_for_label }}">{{ form.password.label }}</label>
+            {{ form.password }}
+            {% if form.password.errors %}
+                <ul class="errorlist">
+                    {% for error in form.password.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+
+        <button type="submit" class="submit-btn">Login</button>
+    </form>
+
+    <div class="auth-links">
+        <p>Don't have an account? <a href="{% url 'register' %}">Register here</a></p>
+        <a href="{% url 'password_reset' %}">Forgot your password?</a>
+    </div>
+</div>
+{% endblock %}
