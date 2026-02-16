@@ -1,0 +1,194 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - Task Manager{% endblock %}
+
+{% block extra_css %}
+<style>
+    .homepage-container {
+        text-align: center;
+    }
+
+    .welcome-section {
+        margin-bottom: 3rem;
+    }
+
+    .welcome-section h2 {
+        font-size: 2.5rem;
+        color: #667eea;
+        margin-bottom: 1rem;
+    }
+
+    .welcome-text {
+        font-size: 1.1rem;
+        color: #666;
+        line-height: 1.8;
+        margin-bottom: 2rem;
+    }
+
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .feature-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 2rem;
+        border-radius: 10px;
+        color: white;
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        transition: all 0.3s ease;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+    }
+
+    .feature-emoji {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+
+    .feature-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .feature-description {
+        font-size: 0.95rem;
+        opacity: 0.9;
+    }
+
+    .cta-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 3rem;
+        border-radius: 10px;
+        color: white;
+        margin-bottom: 2rem;
+    }
+
+    .cta-section h3 {
+        font-size: 1.8rem;
+        margin-bottom: 1rem;
+    }
+
+    .cta-section p {
+        font-size: 1.1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .cta-button {
+        display: inline-block;
+        padding: 1rem 2.5rem;
+        background: white;
+        color: #667eea;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: 700;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+        margin: 0.5rem;
+    }
+
+    .cta-button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    .quick-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1.5rem;
+        margin: 2rem 0;
+    }
+
+    .stat-box {
+        background: #f9f9f9;
+        padding: 1.5rem;
+        border-radius: 10px;
+        border-left: 4px solid #667eea;
+    }
+
+    .stat-number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #667eea;
+    }
+
+    .stat-label {
+        color: #666;
+        font-size: 0.9rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="homepage-container">
+    <div class="welcome-section">
+        <h2>Welcome to Task Manager! 🎯</h2>
+        <p class="welcome-text">
+            Stay organized and productive with our easy-to-use task management system.
+            Create, track, and complete your tasks all in one place.
+        </p>
+    </div>
+
+    {% if user.is_authenticated %}
+        <div class="quick-stats">
+            <div class="stat-box">
+                <div class="stat-number">{{ user.tasks.count }}</div>
+                <div class="stat-label">Total Tasks</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number">{{ user.tasks|dictsort:"status"|length }}</div>
+                <div class="stat-label">Active Tasks</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number">📋</div>
+                <div class="stat-label">Ready to Go</div>
+            </div>
+        </div>
+
+        <div class="cta-section">
+            <h3>Ready to get started?</h3>
+            <p>Manage your tasks efficiently and stay on top of your goals</p>
+            <a href="{% url 'task_list' %}" class="cta-button">View My Tasks</a>
+            <a href="{% url 'create_task' %}" class="cta-button">Create New Task</a>
+        </div>
+    {% else %}
+        <div class="cta-section">
+            <h3>Get Started Today</h3>
+            <p>Create an account or login to start managing your tasks</p>
+            <a href="{% url 'register' %}" class="cta-button">Register</a>
+            <a href="{% url 'login' %}" class="cta-button">Login</a>
+        </div>
+    {% endif %}
+
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-emoji">✅</div>
+            <div class="feature-title">Create Tasks</div>
+            <div class="feature-description">Add new tasks with descriptions, priority levels, and due dates</div>
+        </div>
+        <div class="feature-card">
+            <div class="feature-emoji">📊</div>
+            <div class="feature-title">Track Progress</div>
+            <div class="feature-description">Monitor task status and see your productivity at a glance</div>
+        </div>
+        <div class="feature-card">
+            <div class="feature-emoji">⚡</div>
+            <div class="feature-title">Quick Actions</div>
+            <div class="feature-description">Edit, delete, or update tasks with just a few clicks</div>
+        </div>
+        <div class="feature-card">
+            <div class="feature-emoji">🔒</div>
+            <div class="feature-title">Secure & Private</div>
+            <div class="feature-description">Your tasks are private and only accessible to you</div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+</body>
+</html>
